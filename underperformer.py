@@ -49,15 +49,15 @@ def prod_stddev( prod ):
 	# get the stddev
 	return v ** 0.5
 
-def prod_mean( prod rray of averages, empid => av:
+def prod_mean( prod ):
     t = 0.0 
     for p in prod:
-        prod[p][AVG] = ( prod[p][TOTAL] + 0.0 ) / prod[p][WEEKS]
-        t += prod[p][AVG]
+        t += ( prod[p][TOTAL] + 0.0 ) / prod[p][WEEKS]
     # get the average of the array of averages
     return t / len(prod)
 	
-
+def underperf( prod, args ):
+	return True
 
 
 # ( prod[] -> id of the underperformer, or null if there is none )
@@ -117,7 +117,7 @@ try:
 			else:
 				raise MyError("Bad data at week %d, employee %d (0-based)" % ( week, emp ) )
 			if not empid in prod:
-				prod[empid] = { TOTAL : 0, WEEKS : 0 }
+				prod[empid] = { TOTAL : 0.0, WEEKS : 0.0 }
 			prod[empid][TOTAL] += weeks[week][emp][WORKCOUNT]
 			prod[empid][WEEKS] += 1
 			print ( prod[empid][TOTAL] + 0.0 ) / prod[empid][WEEKS]
@@ -130,8 +130,9 @@ try:
 		print "The second worst employee this week has id %d" % second_worst_id_c
 		stddev = prod_stddev( prod )
 		print stddev
-		print "Worst to mean is %f stddevs" % 0
-		print "Worst to second worst is %f stddevs" % 0
+		mean = prod_mean( prod )
+		print "Worst to mean is %f stddevs" % ( ( mean - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
+		print "Worst to second worst is %f stddevs" % ( ( prod[second_worst_id_c][TOTAL] / prod[second_worst_id_c][WEEKS] - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
 		# underperformer = underperf( prod )
 		print ""
 		week += 1
