@@ -32,6 +32,10 @@ def weeks_worst_c( emps ):
 			worst_av = ( emps[worst_id][TOTAL] + 0.0 ) / emps[worst_id][WEEKS]
 	return worst_id
 
+# Return the employee id of the worst employee considering only non-cumulative performance this week.
+def weeks_worst( emps ):
+	return None
+
 def prod_stddev( prod ):
 	# get the array of averages, empid => av
 	t = 0.0
@@ -55,29 +59,39 @@ def prod_mean( prod ):
         t += ( prod[p][TOTAL] + 0.0 ) / prod[p][WEEKS]
     # get the average of the array of averages
     return t / len(prod)
-	
-def underperf( prod, args ):
-	return True
 
-
-# ( prod[] -> id of the underperformer, or null if there is none )
-# function underperf( array prod[empid=>[total, weeks]], function test( worst_id, prod[empid=>
-	# [total, weeks]] ) )
-	# 
-
-# function stdev_test
-
-# function avg_test
+# Return True if worst_id_c is the id of an underperformer in employee matrix prod, False otherwise.
+def underperf( prod, args, worst_id_c ):
+	stddev = prod_stddev( prod )
+	mean = prod_mean( prod )
+	worst_av = prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS]
+	# Apply the stddev test.
+	if args.stddevs != None and ( ( mean - worst_av ) / stddev ) >= args.stddevs:
+		print 
+		return True
+	# Apply the ratio test.
+	# Get the average of all but the worst.
+	if args.ratio != None:
+		all_but_worst = prod.copy()
+		all_but_worst.pop( worst_id_c )
+		mean_rest = prod_mean( all_but_worst )
+		if worst_av <= args.ratio * mean_rest:
+			print "employee %d average: %f, average for others: %f" % ( worst_id_c, worst_av, mean_rest )
+			print "employee %d is underperforming and should be fired" % worst_id_c
+			return True
+	return False
 
 # Get command line options.
 parser = argparse.ArgumentParser( description='Find the underperformer.' )
 parser.add_argument( '--version', help='print the current version and exit', action='version', version=VERSION )
+parser.add_argument( '--verbose', action = 'store_true' )
 source_group = parser.add_mutually_exclusive_group( required = True )
 source_group.add_argument( '--file', '-f', help = 'read performance data from FILE', type = file )
 source_group.add_argument( '--url', '-u', help = 'read performance data from URL' )
 calc_group = parser.add_mutually_exclusive_group( required = True )
-calc_group.add_argument( '--stddevs', '-s', help = 'an underperformer is STDDEVS standard deviations from the next worse performer', type = float )
-calc_group.add_argument( '--ratio', '-r', help = 'an underperformer produces RATIO * the average of everyone else, or worse', type = float )
+calc_group.add_argument( '--stddevs', '-s', help = 'an underperformer\' cumulative output is STDDEVS standard deviations from the mean', type = float )
+calc_group.add_argument( '--ratio', '-r', help = 'an underperformer cumulatively produces RATIO * the average of everyone else, or worse', type = float )
+calc_group.add_argument( '--row', '-w', help = 'an underperformer is the worst employee for ROW weeks in a row; not implemented' )
 args = parser.parse_args()
 
 # Read in source.
@@ -110,6 +124,8 @@ week = 0
 
 try:
 	while week < len(weeks) and not underperformer:
+		if args.verbose:
+			print "Week %d" % week
 		emp = 0
 		while emp < len ( weeks[week] ):
 			if EMPLOYEE in weeks[week][emp]:
@@ -120,31 +136,24 @@ try:
 				prod[empid] = { TOTAL : 0.0, WEEKS : 0.0 }
 			prod[empid][TOTAL] += weeks[week][emp][WORKCOUNT]
 			prod[empid][WEEKS] += 1
-			print ( prod[empid][TOTAL] + 0.0 ) / prod[empid][WEEKS]
+			if args.verbose:
+				print ( prod[empid][TOTAL] + 0.0 ) / prod[empid][WEEKS]
 			emp += 1
 		worst_id_c = weeks_worst_c( prod )
-		print "The worst employee this week has id %d" % worst_id_c
-		all_but_worst = prod.copy()
-		all_but_worst.pop( worst_id_c )
-		second_worst_id_c = weeks_worst_c( all_but_worst )
-		print "The second worst employee this week has id %d" % second_worst_id_c
+		if args.verbose:
+			print "The worst employee this week has id %d" % worst_id_c
 		stddev = prod_stddev( prod )
-		print stddev
 		mean = prod_mean( prod )
-		print "Worst to mean is %f stddevs" % ( ( mean - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
-		print "Worst to second worst is %f stddevs" % ( ( prod[second_worst_id_c][TOTAL] / prod[second_worst_id_c][WEEKS] - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
-		# underperformer = underperf( prod )
-		print ""
+		if args.verbose:
+			print "Worst to mean is %f stddevs" % ( ( mean - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
+		underperformer = underperf( prod, args, worst_id_c )
+		if underperformer:
+			print "As of week %d, we have an underperformer." % week
+		if args.verbose and week != ( len(weeks) - 1 ):
+			print ""
 		week += 1
 except MyError as ie:
 	print ie.value
 
-# if !underperformer
-	# print no_underperf_message()
-# else
-	# print underperformer_message( prod )
-		
-
-
-
-
+if not underperformer:
+	print "All our employees are equally bad."
