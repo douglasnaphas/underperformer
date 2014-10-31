@@ -16,7 +16,7 @@ optional arguments:
   --file FILE, -f FILE  read performance data from FILE
   --url URL, -u URL     read performance data from URL
   --stddevs STDDEVS, -s STDDEVS
-                        an underperformer' cumulative output is STDDEVS
+                        an underperformer's cumulative output is STDDEVS
                         standard deviations from the mean
   --ratio RATIO, -r RATIO
                         an underperformer cumulatively produces RATIO * the
