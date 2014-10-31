@@ -151,7 +151,7 @@ try:
 			print "As of week %d, we have an underperformer." % week
 			print "Employee %d is underperforming and should be fired." % worst_id_c
 		week += 1
-		if args.verbose and not underperformer and week != ( len(weeks) - 1 ):
+		if args.verbose:
 			print ""
 except MyError as ie:
 	print ie.value
