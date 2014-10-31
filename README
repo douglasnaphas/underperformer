@@ -1,0 +1,45 @@
+Find an underperforming employee.
+
+$ git clone git@github.com:douglasnaphas/underperformer.git
+$ cd underperformer
+$ python ./underperformer.py --help
+usage: underperformer.py [-h] [--version] [--verbose]
+                         (--file FILE | --url URL)
+                         (--stddevs STDDEVS | --ratio RATIO | --row ROW)
+
+Find the underperformer.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             print the current version and exit
+  --verbose
+  --file FILE, -f FILE  read performance data from FILE
+  --url URL, -u URL     read performance data from URL
+  --stddevs STDDEVS, -s STDDEVS
+                        an underperformer' cumulative output is STDDEVS
+                        standard deviations from the mean
+  --ratio RATIO, -r RATIO
+                        an underperformer cumulatively produces RATIO * the
+                        average of everyone else, or worse
+  --row ROW, -w ROW     an underperformer is the worst employee for ROW weeks
+                        in a row; not implemented
+$ python ./underperformer.py --verbose --url $data_url --stddevs 1.5
+Week 0
+Employee 1: 45.000000
+Employee 2: 27.000000
+Employee 3: 69.000000
+Employee 4: 51.000000
+Employee 5: 71.000000
+Employee 6: 35.000000
+Employee 7: 50.000000
+The worst employee this week has id 2
+Worst to mean is 1.511205 stddevs
+Employee 2 is currently 1.511205 standard deviations behind the mean of 49.714286.
+As of week 0, we have an underperformer.
+Employee 2 is underperforming and should be fired.
+$ python ./underperformer.py --url $data_url --stddevs 1.5 # different random data
+Employee 5 is currently 1.517698 standard deviations behind the mean of 48.285714.
+As of week 0, we have an underperformer.
+Employee 5 is underperforming and should be fired.
+$ python ./underperformer.py --url $data_url --stddevs 3.0 # very relaxed standard
+All our employees are equally bad.
