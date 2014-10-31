@@ -146,13 +146,13 @@ try:
 		mean = prod_mean( prod )
 		if args.verbose:
 			print "Worst to mean is %f stddevs" % ( ( mean - prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS] ) / stddev )
+		if args.verbose:
+			print ""
 		underperformer = underperf( prod, args, worst_id_c )
 		if underperformer:
 			print "As of week %d, we have an underperformer." % week
 			print "Employee %d is underperforming and should be fired." % worst_id_c
 		week += 1
-		if args.verbose:
-			print ""
 except MyError as ie:
 	print ie.value
 
