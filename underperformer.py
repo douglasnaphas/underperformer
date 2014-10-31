@@ -66,8 +66,9 @@ def underperf( prod, args, worst_id_c ):
 	mean = prod_mean( prod )
 	worst_av = prod[worst_id_c][TOTAL] / prod[worst_id_c][WEEKS]
 	# Apply the stddev test.
-	if args.stddevs != None and ( ( mean - worst_av ) / stddev ) >= args.stddevs:
-		print 
+	stddevs_behind = ( mean - worst_av ) / stddev
+	if args.stddevs != None and stddevs_behind >= args.stddevs:
+		print "Employee %d is currently %f standard deviations behind the mean of %f." % ( worst_id_c, stddevs_behind, mean )
 		return True
 	# Apply the ratio test.
 	# Get the average of all but the worst.
@@ -76,8 +77,7 @@ def underperf( prod, args, worst_id_c ):
 		all_but_worst.pop( worst_id_c )
 		mean_rest = prod_mean( all_but_worst )
 		if worst_av <= args.ratio * mean_rest:
-			print "employee %d average: %f, average for others: %f" % ( worst_id_c, worst_av, mean_rest )
-			print "employee %d is underperforming and should be fired" % worst_id_c
+			print "Employee %d average so far: %f, average for others: %f" % ( worst_id_c, worst_av, mean_rest )
 			return True
 	return False
 
@@ -137,7 +137,7 @@ try:
 			prod[empid][TOTAL] += weeks[week][emp][WORKCOUNT]
 			prod[empid][WEEKS] += 1
 			if args.verbose:
-				print ( prod[empid][TOTAL] + 0.0 ) / prod[empid][WEEKS]
+				print "Employee %d: %f" % ( empid, ( prod[empid][TOTAL] + 0.0 ) / prod[empid][WEEKS] )
 			emp += 1
 		worst_id_c = weeks_worst_c( prod )
 		if args.verbose:
@@ -149,9 +149,10 @@ try:
 		underperformer = underperf( prod, args, worst_id_c )
 		if underperformer:
 			print "As of week %d, we have an underperformer." % week
-		if args.verbose and week != ( len(weeks) - 1 ):
-			print ""
+			print "Employee %d is underperforming and should be fired." % worst_id_c
 		week += 1
+		if args.verbose and not underperformer and week != ( len(weeks) - 1 ):
+			print ""
 except MyError as ie:
 	print ie.value
 
