@@ -82,7 +82,7 @@ def underperf( prod, args, worst_id_c ):
 	return False
 
 # Get command line options.
-parser = argparse.ArgumentParser( description='Find the underperformer.' )
+parser = argparse.ArgumentParser( description='Find the underperformer.', epilog='Data must be JSON like [[{\'employee\':1, \'workCount\':71},{\'employee\':2, \'workCount\':72}], [{\'employee\':1, \'workCount\':21},{\'employee\':2, \'workCount\':52}]]' )
 parser.add_argument( '--version', help='print the current version and exit', action='version', version=VERSION )
 parser.add_argument( '--verbose', action = 'store_true' )
 source_group = parser.add_mutually_exclusive_group( required = True )

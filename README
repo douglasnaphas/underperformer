@@ -23,6 +23,10 @@ optional arguments:
                         average of everyone else, or worse
   --row ROW, -w ROW     an underperformer is the worst employee for ROW weeks
                         in a row; not implemented
+
+Data must be JSON like [[{'employee':1, 'workCount':71},{'employee':2,
+'workCount':72}], [{'employee':1, 'workCount':21},{'employee':2,
+'workCount':52}]]
 $ python ./underperformer.py --verbose --url $data_url --stddevs 1.5
 Week 0
 Employee 1: 45.000000
